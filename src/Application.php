@@ -28,10 +28,18 @@ class Application
     public function __invoke($method = null, $uri = null)
     {
         $_method    = $method ?: $_SERVER['REQUEST_METHOD'];
-        $_uri       = $uri ?: ((strpos($_SERVER['REQUEST_URI'], '?') !== false) ? 
-                                    substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], '?')) : 
-                                    $_SERVER['REQUEST_URI']
-                              );
+
+        if ($uri !== null) {
+            $_uri = $uri;
+        } else if (array_key_exists('__uri', $_REQUEST)) {
+            $_uri = $_REQUEST['__uri'];
+        } else {
+            $_uri = $_SERVER['REQUEST_URI'];
+        }
+
+        if (strpos($_uri, '?') !== false) {
+            $_uri = substr($_uri, 0, strpos($_uri, '?'));
+        }
 
         return $this->router->match($_method, $_uri);
     }
