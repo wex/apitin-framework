@@ -45,8 +45,8 @@ function dprintf(...$params)
 
 function log_r(...$values)
 {
-    dprint_r(...$values);
-
+    if (!config('LOGFILE', false)) return;
+    
     $callStack = debug_backtrace();
 
     $sourceFile = $callStack[0]['file'];
@@ -97,7 +97,7 @@ function log_r(...$values)
     }
 
     file_put_contents(
-        ROOT_PATH . '/app.log', 
+        config('LOGFILE', false), 
         sprintf(
             "[%s] %s\n",
             date('Y-m-d H:i:s'),
