@@ -12,42 +12,16 @@
 
 ## Getting started
 
-Create new project using `composer` with:
+1. Create new project using `composer` with:
 
 ```
 composer create-project apitin/apitin example-api
 ```
 
-See `app/ExampleModule.php`:
-```php
-<?php
-
-use Apitin\Database;
-use Apitin\Module;
-use Apitin\Router;
-
-class ExampleModule extends Module
-{
-    /**
-     * Build routes for module
-     */
-    public function route(Router $router): void
-    {
-        // Route / to: $this->test(...)
-        $router->get('/', function() {
-            return $this->call('test');
-        });
-    }
-
-    /**
-     * Callback handler for a route
-     * 
-     * Database implements DI class
-     * -> $db will be automatically populated with Database::factory()
-     */
-    public function test(Database $db)
-    {
-        return ['foo' => 'bar'];
-    }
-}
+2. Start internal web server
 ```
+cd example-api
+php -S 127.0.0.1:3000 -t .
+```
+
+3. Visit `http://127.0.0.1:3000/` and start developing!
