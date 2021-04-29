@@ -1,0 +1,24 @@
+{
+    "name": "apitin/framework",
+    "description": "Ultra light-weight API framework",
+    "type": "package",
+    "authors": [
+        {
+            "name": "Niko Hujanen",
+            "email": "niko.hujanen@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "app/",
+            "Apitin\\": "src/"
+        },
+        "files": [
+            "src/functions.inc.php"
+        ]
+    }
+}
