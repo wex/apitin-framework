@@ -2,13 +2,14 @@
 
 * Requires `PHP 8.0+`
 * Development can be done with `built-in web server`
+* Apache & mod_rewrite supported
 * Can be used with `modules` and pure `callbacks`
 * Supports magical loading with `static dependency injection`
 
 ## TODO
 
-* Support for Apache
 * Route caching
+* Create documentation
 
 ## Getting started
 
