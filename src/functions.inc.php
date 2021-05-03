@@ -3,10 +3,11 @@
 function urlTo($uri)
 {
     return sprintf(
-        "%s://%s%s/%s",
+        "%s://%s%s/%s/%s",
         ($_SERVER['SERVER_PORT'] === '443') ? 'https' : 'http',
         $_SERVER['SERVER_NAME'],
         !in_array($_SERVER['SERVER_PORT'], array('80', '443')) ? sprintf(":%d", $_SERVER['SERVER_PORT']) : '',
+        trim(substr($_SERVER['SCRIPT_NAME'], 0, -9), '/'),
         trim($uri, '/')
     );
 }
