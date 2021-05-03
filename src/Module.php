@@ -14,17 +14,17 @@ abstract class Module
         $this->application = $application;
         
         $this->route($application->router);
+
+        $this->onRegister($this->application);
     }
 
-    public function headers(): void
+    public function onRegister(Application &$application): void
     {
 
     }
 
     public function call(string $methodName, array $arguments = [])
     {
-        $this->headers();
-        
         if (!method_exists($this, $methodName)) throw new NotFoundException("Handler not found: {$methodName}");
         
         $reflectedMethod = new ReflectionMethod($this, $methodName);

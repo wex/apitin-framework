@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('APP_PATH')) define('APP_PATH', '');
+
 function urlTo($uri)
 {
     return sprintf(
