@@ -132,7 +132,7 @@ function dprint_r(...$values)
             case 'object':
                 $text .= sprintf("%s ", get_class($value));
 
-                if ($value instanceof Error) {
+                if ($value instanceof Throwable) {
                     $text .= sprintf(
                         "%s:%s\n%s\n%s\n",
                         $value->getFile(),
