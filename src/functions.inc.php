@@ -33,7 +33,7 @@ function config(string $key, $default = null)
 
 function dprintf(...$params)
 {
-    if (!config('DEBUG', false)) return;
+    if (!isDebugging()) return;
 
     $text = sprintf(
         "\e[1;32m%s\e[0m \e[0;36m%s\e[0m\n",
@@ -67,7 +67,7 @@ function log_r(...$values)
             case 'object':
                 $text .= sprintf("%s ", get_class($value));
 
-                if ($value instanceof Error) {
+                if ($value instanceof Throwable) {
                     $text .= sprintf(
                         "%s:%s\n%s\n%s\n",
                         $value->getFile(),
@@ -110,9 +110,17 @@ function log_r(...$values)
     );
 }
 
+function isDebugging(): bool
+{
+    if (config('DEBUG', false)) return true;
+    if (php_sapi_name() === 'cli-server') return true;
+    
+    return false;
+}
+
 function dprint_r(...$values)
 {
-    if (!config('DEBUG', false)) return;
+    if (!isDebugging()) return;
 
     $callStack = debug_backtrace();
 

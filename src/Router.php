@@ -3,10 +3,9 @@
 namespace Apitin;
 
 use Closure;
-use Exception;
 use Apitin\Router\InvalidMethodException;
-use Apitin\Router\InvalidRequestException;
 use Apitin\Router\NotFoundException;
+use ReflectionFunction;
 
 class Router
 {
@@ -66,28 +65,29 @@ class Router
                     },
                     ARRAY_FILTER_USE_BOTH
                 );
+
+                $refledCallback = new ReflectionFunction($_callback);
+
+                foreach ($refledCallback->getParameters() as $reflectedParameter) {
+                    if (array_key_exists($reflectedParameter->getName(), $_params)) continue;
+                    if ($reflectedParameter->allowsNull()) $_params[ $reflectedParameter->getName() ] = null;
+                    if (!$reflectedParameter->hasType()) continue;
+
+                    $reflectedType  = $reflectedParameter->getType();
+                    $className      = $reflectedType->getName();
+
+                    if (class_exists($className) && is_subclass_of($className, DI::class)) {
+                        $_params[ $reflectedParameter->getName() ] = $className::factory();
+                    }
+                }
                 
-                try {
-
-                    return $_callback(...$_params);
-
-                } catch (InvalidMethodException|InvalidRequestException|NotFoundException $e) {
-
-                    throw $e;
-
-                } catch (Exception $e) {
-
-                    log_r($e);
-                    throw new InvalidRequestException("Request failed: {$_method} {$_uri}");
-
-                }                
+                return $_callback(...$_params);
 
             }
 
         }
 
         throw new NotFoundException("No match: {$_method} {$_uri}");
-
     }
 
     public function with(string $prefix, Closure $callback): self
