@@ -73,5 +73,8 @@ abstract class Module
         }
     }
 
-    abstract public function route(Router $router): void;
+    public function route(Router $router): void
+    {
+        
+    }
 }
