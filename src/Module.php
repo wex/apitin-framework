@@ -4,6 +4,7 @@ namespace Apitin;
 
 use Apitin\Router\NotFoundException;
 use ReflectionMethod;
+use ReflectionObject;
 
 abstract class Module
 {
@@ -13,6 +14,7 @@ abstract class Module
     {
         $this->application = $application;
         
+        $this->routeWithAttributes($application->router);
         $this->route($application->router);
 
         $this->onRegister($this->application);
@@ -43,6 +45,25 @@ abstract class Module
         }
 
         return $this->$methodName(...$arguments);
+    }
+
+    protected function routeWithAttributes(Router $router): void
+    {
+        $reflectionClass = new ReflectionObject($this);
+
+        foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
+            $methodName = $reflectionMethod->getName();
+            foreach ($reflectionMethod->getAttributes(Route::class) as $routeAttribute) {
+                $routeParameters = $routeAttribute->getArguments();
+
+                foreach ( is_string($routeParameters[1]) ? [$routeParameters[1]] : $routeParameters[1] as $httpMethod) {
+                    $router->on($httpMethod, $routeParameters[0], function(...$__params) use ($methodName) {
+                        unset( $__params['__params'] );
+                        return $this->call($methodName, $__params);
+                    });
+                }
+            }
+        }
     }
 
     abstract public function route(Router $router): void;
