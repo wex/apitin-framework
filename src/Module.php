@@ -25,8 +25,15 @@ abstract class Module
 
     }
 
+    public function onCall(Application &$application): void
+    {
+        
+    }
+
     public function call(string $methodName, array $arguments = [])
     {
+        $this->onCall($this->application);
+
         if (!method_exists($this, $methodName)) throw new NotFoundException("Handler not found: {$methodName}");
         
         $reflectedMethod = new ReflectionMethod($this, $methodName);
