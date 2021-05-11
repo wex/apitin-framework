@@ -27,18 +27,27 @@ class Application
 
     public function __invoke($method = null, $uri = null)
     {
-        $_method    = $method ?: $_SERVER['REQUEST_METHOD'];
+        if (php_sapi_name() === 'cli') {
 
-        if ($uri !== null) {
-            $_uri = $uri;
-        } else if (array_key_exists('__uri', $_REQUEST)) {
-            $_uri = $_REQUEST['__uri'];
+            $_method    = 'GET';
+            $_uri       = $_SERVER['argv'][1];
+
         } else {
-            $_uri = $_SERVER['REQUEST_URI'];
-        }
+            
+            $_method    = $method ?: $_SERVER['REQUEST_METHOD'];
 
-        if (strpos($_uri, '?') !== false) {
-            $_uri = substr($_uri, 0, strpos($_uri, '?'));
+            if ($uri !== null) {
+                $_uri = $uri;
+            } else if (array_key_exists('__uri', $_REQUEST)) {
+                $_uri = $_REQUEST['__uri'];
+            } else {
+                $_uri = $_SERVER['REQUEST_URI'];
+            }
+
+            if (strpos($_uri, '?') !== false) {
+                $_uri = substr($_uri, 0, strpos($_uri, '?'));
+            }
+
         }
 
         return $this->router->match($_method, $_uri);
