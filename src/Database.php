@@ -19,7 +19,6 @@ class Database extends PDO implements DI
             config('DATABASE_USERNAME', ''),
             config('DATABASE_PASSWORD', '')
         );
-        return new static("mysql:dbname=tplink;host=127.0.0.1", 'root', '');
     }
 
     public function one($sql, ...$parameters)
@@ -120,5 +119,16 @@ class Database extends PDO implements DI
             throw new LogicException("Exec failed");
 
         }
+    }
+
+    public function delete($table, array $where = [])
+    {
+        $sql = sprintf(
+            'DELETE FROM `%s` WHERE %s',
+            str_replace('`', '``', $table),
+            implode(' AND ', array_map(function($v, $k) { return sprintf('`%s` = %s', str_replace('`', '``', $k), is_null($v) ? 'NULL' : $this->quote($v)); }, $where, array_keys($where))),
+        );
+
+        return $this->exec($sql);
     }
 }
