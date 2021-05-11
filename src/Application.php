@@ -2,6 +2,7 @@
 
 namespace Apitin;
 
+use Apitin\Router\ServeWithBuiltinException;
 use RuntimeException;
 
 class Application
@@ -36,9 +37,15 @@ class Application
 
             $_method    = 'GET';
             $_uri       = $_SERVER['argv'][1];
-            
 
         } else {
+
+            if (isBuiltin()) {
+                $requestFile = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['REQUEST_URI'];
+                if (file_exists($requestFile) && !is_dir($requestFile)) {
+                    throw new ServeWithBuiltinException();
+                }
+            }
             
             $_method    = $method ?: $_SERVER['REQUEST_METHOD'];
 

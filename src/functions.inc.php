@@ -116,8 +116,15 @@ namespace Apitin {
     function isDebugging(): bool
     {
         if (config('DEBUG', false)) return true;
-        if (php_sapi_name() === 'cli-server') return true;
+        if (isBuiltin()) return true;
         
+        return false;
+    }
+
+    function isBuiltin(): bool
+    {
+        if (php_sapi_name() === 'cli-server') return true;
+
         return false;
     }
 
