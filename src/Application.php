@@ -2,6 +2,8 @@
 
 namespace Apitin;
 
+use RuntimeException;
+
 class Application
 {
     public Router $router;
@@ -27,10 +29,14 @@ class Application
 
     public function __invoke($method = null, $uri = null)
     {
-        if (php_sapi_name() === 'cli') {
+        if (isCli()) {
+
+            if (!array_key_exists(1, $_SERVER['argv'])) 
+                throw new RuntimeException("Missing command - type 'php index.php commandHere'");
 
             $_method    = 'GET';
             $_uri       = $_SERVER['argv'][1];
+            
 
         } else {
             

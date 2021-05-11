@@ -121,6 +121,13 @@ namespace Apitin {
         return false;
     }
 
+    function isCli(): bool
+    {
+        if (php_sapi_name() === 'cli') return true;
+
+        return false;
+    }
+
     function dprint_r(...$values)
     {
         if (!isDebugging()) return;
