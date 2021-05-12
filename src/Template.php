@@ -46,4 +46,31 @@ class Template implements Renderable
             $this->buffered
         );
     }
+
+    public function partial(string $filename, array $data = [], $scope = null, bool $buffered = false)
+    {
+        $renderer = function() {
+            extract(func_get_arg(1));
+
+            if (func_get_arg(2)) ob_start();
+            
+            require func_get_arg(0);
+
+            if (!func_get_arg(2)) return;
+            
+            $html = ob_get_contents();
+            ob_end_clean();
+
+            return $html;
+        };
+
+        $baseDir = dirname($this->filename);
+
+        return $renderer->call(
+            is_null($scope) ? $this : $scope,
+            "{$baseDir}/{$filename}",
+            $this->data + $data,
+            $buffered
+        );
+    }
 }
