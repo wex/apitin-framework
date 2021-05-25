@@ -57,6 +57,9 @@ class Application
                 $_uri = $_SERVER['REQUEST_URI'];
             }
 
+            $_script_name   = preg_replace('|index\.php$|i', '', $_SERVER['SCRIPT_NAME']);
+            $_uri = preg_replace("|^{$_script_name}|i", '', $_SERVER['REQUEST_URI']);
+
             if (strpos($_uri, '?') !== false) {
                 $_uri = substr($_uri, 0, strpos($_uri, '?'));
             }
