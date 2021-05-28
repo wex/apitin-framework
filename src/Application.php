@@ -51,10 +51,8 @@ class Application
 
             if ($uri !== null) {
                 $_uri = $uri;
-            } else if (array_key_exists('__uri', $_REQUEST)) {
-                $_uri = $_REQUEST['__uri'];
             } else {
-                $_uri = $_SERVER['REQUEST_URI'];
+                $_uri = isBuiltin() ? $_REQUEST['REQUEST_URI'] : ($_REQUEST['__uri'] ?? '');
             }
 
             if (strpos($_uri, '?') !== false) {
