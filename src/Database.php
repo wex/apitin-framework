@@ -94,8 +94,8 @@ class Database extends PDO implements DI
         $sql = sprintf(
             'UPDATE `%s` SET %s WHERE %s',
             str_replace('`', '``', $table),
-            implode(', ', array_map(function($v, $k) { return sprintf('`%s` = %s', str_replace('`', '``', $k), is_null($v) ? 'NULL' : $this->quote("{$v}")); }, $data, array_keys($data))),
-            implode(' AND ', array_map(function($v, $k) { return sprintf('`%s` = %s', str_replace('`', '``', $k), is_null($v) ? 'NULL' : $this->quote("{$v}")); }, $where, array_keys($where))),
+            implode(', ', array_map(function($v, $k) { return sprintf('`%s` = %s', str_replace('`', '``', "{$k}"), is_null($v) ? 'NULL' : $this->quote("{$v}")); }, $data, array_keys($data))),
+            implode(' AND ', array_map(function($v, $k) { return sprintf('`%s` = %s', str_replace('`', '``', "{$k}"), is_null($v) ? 'NULL' : $this->quote("{$v}")); }, $where, array_keys($where))),
         );
 
         return $this->exec($sql);
@@ -126,7 +126,7 @@ class Database extends PDO implements DI
         $sql = sprintf(
             'DELETE FROM `%s` WHERE %s',
             str_replace('`', '``', $table),
-            implode(' AND ', array_map(function($v, $k) { return sprintf('`%s` = %s', str_replace('`', '``', $k), is_null($v) ? 'NULL' : $this->quote("{$v}")); }, $where, array_keys($where))),
+            implode(' AND ', array_map(function($v, $k) { return sprintf('`%s` = %s', str_replace('`', '``', "{$k}"), is_null($v) ? 'NULL' : $this->quote("{$v}")); }, $where, array_keys($where))),
         );
 
         return $this->exec($sql);
