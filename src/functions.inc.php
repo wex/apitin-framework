@@ -4,6 +4,19 @@ namespace Apitin {
     
     if (!defined('APP_PATH')) define('APP_PATH', '');
 
+    function path(...$parts)
+    {
+        return implode(
+            DIRECTORY_SEPARATOR,
+            array_map(
+                function($t) {
+                    return rtrim($t, DIRECTORY_SEPARATOR);
+                },
+                $parts
+            )
+        );
+    }
+
     function urlTo($uri)
     {
         return sprintf(

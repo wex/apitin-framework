@@ -3,6 +3,7 @@
 namespace Apitin;
 
 use Apitin\Router\NotFoundException;
+use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionObject;
 
@@ -30,15 +31,9 @@ abstract class Module
         
     }
 
-    public function call(string $methodName, array $arguments = [])
+    public static function populateDI(ReflectionFunctionAbstract $method, array $arguments = []): array
     {
-        $this->onCall($this->application);
-
-        if (!method_exists($this, $methodName)) throw new NotFoundException("Handler not found: {$methodName}");
-        
-        $reflectedMethod = new ReflectionMethod($this, $methodName);
-
-        foreach ($reflectedMethod->getParameters() as $t) {
+        foreach ($method->getParameters() as $t) {
             if (array_key_exists($t->getName(), $arguments)) continue;
             if ($t->allowsNull()) $arguments[ $t->getName() ] = null;
             if ($t->isDefaultValueAvailable()) $arguments[ $t->getName() ] = $t->getDefaultValue();
@@ -50,6 +45,19 @@ abstract class Module
                 $arguments[ $t->getName() ] = $className::factory();
             }
         }
+
+        return $arguments;
+    }
+
+    public function call(string $methodName, array $arguments = [])
+    {
+        $this->onCall($this->application);
+
+        if (!method_exists($this, $methodName)) throw new NotFoundException("Handler not found: {$methodName}");
+        
+        $reflectedMethod = new ReflectionMethod($this, $methodName);
+
+        $arguments = static::populateDI($reflectedMethod, $arguments);
 
         return $this->$methodName(...$arguments);
     }
