@@ -2,10 +2,14 @@
 
 namespace Apitin;
 
+use Apitin\Module\Inject;
 use Apitin\Router\NotFoundException;
+use ReflectionClass;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionObject;
+use ReflectionProperty;
+use RuntimeException;
 
 abstract class Module
 {
@@ -31,8 +35,10 @@ abstract class Module
         
     }
 
-    public static function populateDI(ReflectionFunctionAbstract $method, array $arguments = []): array
+    public function populateDI(string $methodName, array $arguments = []): void
     {
+        $method = new ReflectionMethod($this, $methodName);
+
         foreach ($method->getParameters() as $t) {
             if (array_key_exists($t->getName(), $arguments)) continue;
             if ($t->allowsNull()) $arguments[ $t->getName() ] = null;
@@ -42,22 +48,39 @@ abstract class Module
             $reflectedType  = $t->getType();
             $className      = $reflectedType->getName();
             if (class_exists($className) && is_subclass_of($className, DI::class)) {
-                $arguments[ $t->getName() ] = $className::factory();
+                $argumentName = $t->getName();
+                $this->$argumentName = $className::factory();
             }
         }
+    }
 
-        return $arguments;
+    public function populateInject(Module $class): void
+    {
+        $reflectedClass = new ReflectionClass($this);
+
+        foreach ($reflectedClass->getProperties() as $property) {
+            foreach ($property->getAttributes(Inject::class) as $inject) {
+                $propertyName       = $property->getName();
+                $injectParameters   = $inject->getArguments();
+                $injectWith         = $injectParameters[0];
+                
+                if (!is_subclass_of($injectWith, DI::class, true)) throw new RuntimeException(sprintf(
+                    'Inject is only possible with DI-classes.'
+                ));
+
+                $this->$propertyName = $injectWith::factory();
+            }
+        }
     }
 
     public function call(string $methodName, array $arguments = [])
     {
-        $this->onCall($this->application);
-
         if (!method_exists($this, $methodName)) throw new NotFoundException("Handler not found: {$methodName}");
         
-        $reflectedMethod = new ReflectionMethod($this, $methodName);
+        $this->populateDI($methodName, $arguments);
+        $this->populateInject($this);
 
-        $arguments = static::populateDI($reflectedMethod, $arguments);
+        $this->onCall($this->application);
 
         return $this->$methodName(...$arguments);
     }
