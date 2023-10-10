@@ -42,6 +42,9 @@ class Application
 
             if (isBuiltin()) {
                 $requestFile = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['REQUEST_URI'];
+                if (strpos($requestFile, '?') !== false) {
+                    $requestFile = substr($requestFile, 0, strpos($requestFile, '?'));
+                }
                 if (file_exists($requestFile) && !is_dir($requestFile)) {
                     throw new ServeWithBuiltinException();
                 }
