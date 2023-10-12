@@ -25,12 +25,19 @@ class Router
         'PATCH'     => [],
     ];
 
+    private $nameMap = [];
+
     public function __construct($scope = null)
     {
         $this->scope = $scope;
     }
 
-    public function on(string $method, string $route, Closure $callback): self
+    public function find(string $name)
+    {
+        return $nameMap[$name] ?? null;
+    }
+
+    public function on(string $method, string $route, Closure $callback, string $name = null): self
     {
         $_method    = strtoupper($method);
         $_route     = static::route2regex(trim($route, '/'), $this->prefix);
@@ -41,6 +48,10 @@ class Router
         }
 
         $this->routeMap[ $_method ][ $_route ] = $_callback;
+
+        if ($name) {
+            $this->nameMap[ $name ] = $_route;
+        }
 
         return $this;
     }

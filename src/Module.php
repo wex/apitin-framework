@@ -25,6 +25,11 @@ abstract class Module
         $this->onRegister($this->application);
     }
 
+    public function findRoute(string $name)
+    {
+        return $this->application->router->find($name);
+    }
+
     public function onRegister(Application &$application): void
     {
 
@@ -35,7 +40,7 @@ abstract class Module
         
     }
 
-    public function populateDI(string $methodName, array $arguments = []): void
+    public function populateDI(string $methodName, array $arguments = []): array
     {
         $method = new ReflectionMethod($this, $methodName);
 
@@ -49,12 +54,14 @@ abstract class Module
             $className      = $reflectedType->getName();
             if (class_exists($className) && is_subclass_of($className, DI::class)) {
                 $argumentName = $t->getName();
-                $this->$argumentName = $className::factory();
+                $arguments[ $argumentName ] = $className::factory();
             }
         }
+
+        return $arguments;
     }
 
-    public function populateInject(Module $class): void
+    public function populateInject(array $arguments = []): array
     {
         $reflectedClass = new ReflectionClass($this);
 
@@ -68,17 +75,19 @@ abstract class Module
                     'Inject is only possible with DI-classes.'
                 ));
 
-                $this->$propertyName = $injectWith::factory();
+                $arguments[ $propertyName ] = $injectWith::factory();
             }
         }
+
+        return $arguments;
     }
 
     public function call(string $methodName, array $arguments = [])
     {
         if (!method_exists($this, $methodName)) throw new NotFoundException("Handler not found: {$methodName}");
         
-        $this->populateDI($methodName, $arguments);
-        $this->populateInject($this);
+        $arguments = $this->populateDI($methodName, $arguments);
+        $arguments = $this->populateInject($arguments);
 
         $this->onCall($this->application);
 
@@ -98,7 +107,7 @@ abstract class Module
                     $router->on($httpMethod, $routeParameters[0], function(...$__params) use ($methodName) {
                         unset( $__params['__params'] );
                         return $this->call($methodName, $__params);
-                    });
+                    }, $routeParameters[2] ?? null);
                 }
             }
         }
