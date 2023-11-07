@@ -34,12 +34,14 @@ abstract class Module
     {
         $url = $this->application->router->find($name);
 
+        if (!$url) return;
+
         if (preg_match_all('|\{([^\}]+)\}|', $url, $matches)) {
 
             foreach ($matches[1] as $match) {
                 $url = str_replace(
                     sprintf('{%s}', $match),
-                    $parameters[$match] ?? '',
+                    (string) $parameters[$match] ?? '',
                     $url
                 );
             }
