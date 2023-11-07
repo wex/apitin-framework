@@ -30,6 +30,25 @@ abstract class Module
         return $this->application->router->find($name);
     }
 
+    public function findUrl(string $name, array $parameters = [])
+    {
+        $url = $this->application->router->find($name);
+
+        if (preg_match_all('|\{([^\}]+)\}|', $url, $matches)) {
+
+            foreach ($matches[1] as $match) {
+                $url = str_replace(
+                    sprintf('{%s}', $match),
+                    $parameters[$match] ?? '',
+                    $url
+                );
+            }
+
+        }
+
+        return $url;
+    }
+
     public function onRegister(Application &$application): void
     {
 

@@ -34,7 +34,9 @@ class Router
 
     public function find(string $name)
     {
-        return $nameMap[$name] ?? null;
+        return isset($this->nameMap[$name]) ?
+            ltrim($this->nameMap[$name], '/') :
+            null;
     }
 
     public function on(string $method, string $route, Closure $callback, string $name = null): self
@@ -50,7 +52,7 @@ class Router
         $this->routeMap[ $_method ][ $_route ] = $_callback;
 
         if ($name) {
-            $this->nameMap[ $name ] = $_route;
+            $this->nameMap[ $name ] = $route;
         }
 
         return $this;
